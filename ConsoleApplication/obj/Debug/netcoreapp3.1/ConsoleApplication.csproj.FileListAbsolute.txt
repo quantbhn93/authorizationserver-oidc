@@ -1,0 +1,13 @@
+D:\Studying\net-core\code\MyOpenIddictSample\ConsoleApplication\bin\Debug\netcoreapp3.1\ConsoleApplication.exe
+D:\Studying\net-core\code\MyOpenIddictSample\ConsoleApplication\bin\Debug\netcoreapp3.1\ConsoleApplication.deps.json
+D:\Studying\net-core\code\MyOpenIddictSample\ConsoleApplication\bin\Debug\netcoreapp3.1\ConsoleApplication.runtimeconfig.json
+D:\Studying\net-core\code\MyOpenIddictSample\ConsoleApplication\bin\Debug\netcoreapp3.1\ConsoleApplication.runtimeconfig.dev.json
+D:\Studying\net-core\code\MyOpenIddictSample\ConsoleApplication\bin\Debug\netcoreapp3.1\ConsoleApplication.dll
+D:\Studying\net-core\code\MyOpenIddictSample\ConsoleApplication\bin\Debug\netcoreapp3.1\ConsoleApplication.pdb
+D:\Studying\net-core\code\MyOpenIddictSample\ConsoleApplication\obj\Debug\netcoreapp3.1\ConsoleApplication.csprojAssemblyReference.cache
+D:\Studying\net-core\code\MyOpenIddictSample\ConsoleApplication\obj\Debug\netcoreapp3.1\ConsoleApplication.AssemblyInfoInputs.cache
+D:\Studying\net-core\code\MyOpenIddictSample\ConsoleApplication\obj\Debug\netcoreapp3.1\ConsoleApplication.AssemblyInfo.cs
+D:\Studying\net-core\code\MyOpenIddictSample\ConsoleApplication\obj\Debug\netcoreapp3.1\ConsoleApplication.csproj.CoreCompileInputs.cache
+D:\Studying\net-core\code\MyOpenIddictSample\ConsoleApplication\obj\Debug\netcoreapp3.1\ConsoleApplication.dll
+D:\Studying\net-core\code\MyOpenIddictSample\ConsoleApplication\obj\Debug\netcoreapp3.1\ConsoleApplication.pdb
+D:\Studying\net-core\code\MyOpenIddictSample\ConsoleApplication\obj\Debug\netcoreapp3.1\ConsoleApplication.genruntimeconfig.cache

@@ -1,0 +1,91 @@
+{
+  "format": 1,
+  "restore": {
+    "D:\\Studying\\net-core\\code\\MyOpenIddictSample\\AuthorizationServer\\AuthorizationServer.csproj": {}
+  },
+  "projects": {
+    "D:\\Studying\\net-core\\code\\MyOpenIddictSample\\AuthorizationServer\\AuthorizationServer.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "D:\\Studying\\net-core\\code\\MyOpenIddictSample\\AuthorizationServer\\AuthorizationServer.csproj",
+        "projectName": "AuthorizationServer",
+        "projectPath": "D:\\Studying\\net-core\\code\\MyOpenIddictSample\\AuthorizationServer\\AuthorizationServer.csproj",
+        "packagesPath": "C:\\Users\\qutra\\.nuget\\packages\\",
+        "outputPath": "D:\\Studying\\net-core\\code\\MyOpenIddictSample\\AuthorizationServer\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\qutra\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net5.0"
+        ],
+        "sources": {
+          "D:\\local_packages": {},
+          "http://nuget.episerver.com/feed/packages.svc": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net5.0": {
+            "targetAlias": "net5.0",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net5.0": {
+          "targetAlias": "net5.0",
+          "dependencies": {
+            "Microsoft.EntityFrameworkCore.InMemory": {
+              "target": "Package",
+              "version": "[5.0.4, )"
+            },
+            "Newtonsoft.Json": {
+              "target": "Package",
+              "version": "[12.0.3, )"
+            },
+            "OpenIddict": {
+              "target": "Package",
+              "version": "[3.0.2, )"
+            },
+            "OpenIddict.AspNetCore": {
+              "target": "Package",
+              "version": "[3.0.2, )"
+            },
+            "OpenIddict.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[3.0.2, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.AspNetCore.App": {
+              "privateAssets": "none"
+            },
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.101\\RuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}
