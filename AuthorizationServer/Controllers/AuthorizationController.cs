@@ -11,11 +11,24 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using OpenIddict.Abstractions;
 using OpenIddict.Server.AspNetCore;
+using AuthorizationServer.Extensions;
+using static OpenIddict.Abstractions.OpenIddictConstants;
 
 namespace AuthorizationServer.Controllers
 {
     public class AuthorizationController : Controller
     {
+        private readonly IOpenIddictScopeManager _scopeManager;
+        private readonly IOpenIddictApplicationManager _applicationManager;
+        private readonly IOpenIddictAuthorizationManager _authorizationManager;
+
+        public AuthorizationController (IOpenIddictScopeManager scopeManager, IOpenIddictApplicationManager openIddictApplicationManager, IOpenIddictAuthorizationManager openIddictAuthorizationManager)
+        {
+            _scopeManager = scopeManager;
+            _applicationManager = openIddictApplicationManager;
+            _authorizationManager = openIddictAuthorizationManager;
+        }
+
         /// <summary>
         ///     - Authorization Endpoint
         ///     - TThis endpoint authorises access a protected resource. This resource could be the resource owners identity or an API.
@@ -31,6 +44,12 @@ namespace AuthorizationServer.Controllers
 
             // Retrieve the user principal stored in the authentication cookie. (user logged in using CookieAuthenticationDefaults.AuthenticationScheme in Acccount Controller)
             var result = await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+
+            //var result2 = await HttpContext.AuthenticateAsync();
+            //if (!User.Identity.IsAuthenticated)
+            //{
+
+            //}
 
             // If the user principal can't be extracted, redirect the user to the login page.
             if (!result.Succeeded)
@@ -61,7 +80,39 @@ namespace AuthorizationServer.Controllers
             var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
 
             // Set requested scopes (this is not done automatically)
-            claimsPrincipal.SetScopes(request.GetScopes());
+            var sc = request.GetScopes();
+            claimsPrincipal.SetScopes(sc); 
+            claimsPrincipal.SetResources(await _scopeManager.ListResourcesAsync(request.GetScopes()).ToListAsync());
+
+            // ////////////// SET AUTHORIZATION ///////////////////
+            // Retrieve the application details from the database.
+            var application = await _applicationManager.FindByClientIdAsync(request.ClientId) ??
+                throw new InvalidOperationException("Details concerning the calling client application cannot be found.");
+
+            // Retrieve the permanent authorizations associated with the user and the calling client application.
+            var authorizations = await _authorizationManager.FindAsync(
+                subject: result.Principal.Identity.Name,
+                client: await _applicationManager.GetIdAsync(application),
+                status: Statuses.Valid,
+                type: AuthorizationTypes.Permanent,
+                scopes: request.GetScopes()).ToListAsync();
+
+            // Automatically create a permanent authorization to avoid requiring explicit consent
+            // for future authorization or token requests containing the same scopes.
+            var authorization = authorizations.LastOrDefault();
+            if (authorization is null)
+            {
+                authorization = await _authorizationManager.CreateAsync(
+                    principal: claimsPrincipal,
+                    subject: result.Principal.Identity.Name,
+                    client: await _applicationManager.GetIdAsync(application),
+                    type: AuthorizationTypes.Permanent,
+                    scopes: claimsPrincipal.GetScopes());
+            }
+
+            claimsPrincipal.SetAuthorizationId(await _authorizationManager.GetIdAsync(authorization));
+
+            // ////////////// SET AUTHORIZATION ///////////////////
 
             // Signing in with the OpenIddict authentiction scheme trigger OpenIddict to issue a code (which can be exchanged for an access token)
             return SignIn(claimsPrincipal, OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
@@ -79,6 +130,8 @@ namespace AuthorizationServer.Controllers
         ///     - Tokens endpoint.
         ///     - This endpoint allows the requester to directly retrieve tokens. If the authorization endpoint is human interaction, this endpoint is machine to machine interaction.
         ///     - Identity token will be returned as an additional token (along with access token) if client requesting `scope` including `openid` scope
+        ///            `openid` scope returns the `sub` claim which unniquely identifines the user..
+        ///            - The basic (and required) scope for OIDC is `openid`
         ///     - If a client wants
         /// </summary> to use refresh tokens, it needs to request the `offline_access` scope. Just like we requested the openid scope for identity tokens
         ///     - WHen using refresh token (grant type = `refresh_token`) to get new access token, don't need to specify scope because the refresh token holds all needed inforamtion
@@ -113,6 +166,10 @@ namespace AuthorizationServer.Controllers
             {
                 // Retrieve the claims principal stored in the authorization code
                 claimsPrincipal = (await HttpContext.AuthenticateAsync(OpenIddictServerAspNetCoreDefaults.AuthenticationScheme)).Principal;
+                // DO NOT set scope here because the scope is already in the principle
+                // doing will cause empty scope in principle because there is no scope in this request with authorization code flow
+                // SHOULD only do this with password flow
+                //claimsPrincipal.SetScopes(request.GetScopes());
             }
             else if (request.IsRefreshTokenGrantType())
             {

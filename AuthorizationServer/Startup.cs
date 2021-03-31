@@ -1,16 +1,22 @@
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System;
-using System.Security.Cryptography.X509Certificates;
+using OpenIddict.Validation.AspNetCore;
 
 namespace AuthorizationServer
 {
     public class Startup
     {
+        public Startup(IConfiguration configuration)
+        => Configuration = configuration;
+
+        public IConfiguration Configuration { get; }
+
         // This method gets called by the runtime. Use this method to add services to the container.
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
@@ -23,13 +29,17 @@ namespace AuthorizationServer
                             options.LoginPath = "/account/login";
                         });
 
+
             services.AddDbContext<DbContext>(options =>
             {
                 // configure context to use in memory store
-                options.UseInMemoryDatabase(nameof(DbContext));
+                //options.UseInMemoryDatabase(nameof(DbContext));
+
+                // Configure the context to use Microsoft SQL Server.
+                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
 
                 // register the entity sets needed by OpenIddict (creating tables for storing OpenIddictAppilications, OpenIddictAuthorization, OpeniddictScopes, OpenIddictTokens)
-                //options.UseOpenIddict();
+                options.UseOpenIddict();
             });
 
             services.AddOpenIddict()
@@ -38,9 +48,9 @@ namespace AuthorizationServer
                 .AddCore(options =>
                 {
                     // configure Openiddict to use the EF Core stores/modules
-                    //options.UseEntityFrameworkCore().UseDbContext<DbContext>(); //.ReplaceDefaultEntities() https://kevinchalet.com/2018/06/20/openiddict-rc3-is-out/
-                    options.UseEpiManagers()
-                            .UseEpiInmemoryStore();
+                    options.UseEntityFrameworkCore().UseDbContext<DbContext>(); //.ReplaceDefaultEntities() https://kevinchalet.com/2018/06/20/openiddict-rc3-is-out/
+                    //options.UseEpiManagers()
+                    //        .UseEpiInmemoryStore();
                 })
 
                 // register  the Openiddict server component
@@ -63,16 +73,16 @@ namespace AuthorizationServer
                     // encryption and signing of tokens (the token is not only signed but also encrypted)
                     options.AddEphemeralEncryptionKey(); // register key for encrypting token.only use during developement
                     options.AddEphemeralSigningKey(); // register key for signing token. only use during developement
+                    //options.AddDevelopmentEncryptionCertificate();
 
                     //X509Certificate2 _jwtSigningCert = new X509Certificate2("", "");
                     //options.AddSigningCertificate(_jwtSigningCert);
 
                     options.DisableAccessTokenEncryption(); // can disable encryption for token (token is encyprted by default) https://stackoverflow.com/questions/64725068/openiddict-decryption-of-key-failure
-                    //options.DisableSlidingRefreshTokenExpiration();
+                    options.DisableSlidingRefreshTokenExpiration();
 
                     // register scopes (permissions) (this will be available through discovery endpoint)
-                    //options.RegisterScopes("api");
-
+                    options.RegisterScopes("api");
                     //options.SetAccessTokenLifetime(TimeSpan.FromDays(2));
 
                     // OpenIddict requires Https even on local evinronment/during development 
@@ -80,14 +90,19 @@ namespace AuthorizationServer
                     // register the ASP.NET Core host and configure the ASP.NET Core specific-options (things will available in our custom token endpoints)
                     options.UseAspNetCore().EnableTokenEndpointPassthrough();
                     options.UseAspNetCore().EnableAuthorizationEndpointPassthrough().EnableUserinfoEndpointPassthrough();
-                    //options.UseAspNetCore().EnableLogoutEndpointPassthrough();
+                    options.UseAspNetCore().EnableLogoutEndpointPassthrough();
                 });
-            //.AddValidation(options =>
+            // add token validation (OpenIddictValidationAspNetCoreHandler)
+            // If we have APIs within the same Authentication Server with this server
+            // and the Api should be decorate with  [Authorize(AuthenticationSchemes = OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme)]
+            //.AddValidation(options => 
             // {
             //     options.UseLocalServer();
 
             //     options.UseAspNetCore();
             // });
+
+            //services.Configure<AuthenticationOptions>(options => options.AddScheme<OpenIddictValidationAspNetCoreHandler>("MyScheme", displayName: null));
 
             services.AddHostedService<TestData>();
         }
